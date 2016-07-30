@@ -1,0 +1,36 @@
+{
+  "name": "commentonit",
+  "version": "1.0.0",
+  "description": "Allows users to comment of articles from The Onion News source.",
+  "main": "server.js",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1",
+    "start": "node server.js"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/Havamere/CommentOnIt.git"
+  },
+  "keywords": [
+    "express",
+    "handlebars",
+    "mongodb",
+    "body-parser",
+    "cheerio",
+    "request"
+  ],
+  "author": "Kyle R.",
+  "license": "MIT",
+  "bugs": {
+    "url": "https://github.com/Havamere/CommentOnIt/issues"
+  },
+  "homepage": "https://github.com/Havamere/CommentOnIt#readme",
+  "dependencies": {
+    "body-parser": "^1.15.2",
+    "cheerio": "^0.20.0",
+    "express": "^4.14.0",
+    "express-handlebars": "^3.0.0",
+    "mongojs": "^2.4.0",
+    "request": "^2.74.0"
+  }
+}
