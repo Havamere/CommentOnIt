@@ -8,14 +8,16 @@ var express = require("express");
 var exphbs = require("express-handlebars");
 var mongojs = require("mongojs");
 var request = require("request");
+var path = require("path");
 
 //Allows use of express module
 var app = express();
 
 //Sets public file to be available for public view
-app.use(express.static('public/assets'));
+app.use(express.static(__dirname + '/public'));
 
 // parse application/x-www-form-urlencoded
+app.use(bodyParser.json());
 app.use(bodyParser.urlencoded({ extended: false }));
 app.engine('handlebars', exphbs({defaultLayout: 'main'}));
 app.set('view engine', 'handlebars');
@@ -27,10 +29,13 @@ var collections = ["articles", "comments"];
 // use mongojs to hook the database to the db variable 
 var db = mongojs(databaseURL, collections);
 
-
 app.get('/', function(req, res) {
+	res.render("index", {});
+})
+
+app.post('/submit', function(req, res) {
 	//Loads the web page into the request package to grab information for the user to view
-	request("http://www.theonion.com", function(err, res, html) {
+	request("http://www.theonion.com", function(err, response, html) {
 
 		//Allows the use of $ similar to jQuery
 		var $ = cheerio.load(html);
@@ -52,20 +57,25 @@ app.get('/', function(req, res) {
 			//Grabs the link to the article
 			var link = "http://www.theonion.com" + $(this).children().attr("href");
 
-			//Moves captured info to result array as an object
-			result.push({
-				title: title,
-				desc: desc,
-				image: image,
-				link: link,
-			});
+			if (desc != '') {
+
+				//Moves captured info to result array as an object
+				result.push({
+					title: title,
+					desc: desc,
+					image: image,
+					link: link,
+				});
+			}
 		});
 
+
 		//Tests data capture
-		//console.log(result);
-		//res.send(result);
-	res.render("index", result);
+		console.log(result);
+		//db.articles.insert(result)
 	});
+
+	res.render("index", result);
 });
 
 // listen on port 8080
