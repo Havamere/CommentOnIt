@@ -9,13 +9,24 @@ var exphbs = require("express-handlebars");
 var mongojs = require("mongojs");
 var request = require("request");
 
+//Allows use of express module
+var app = express();
+
+//Sets public file to be available for public view
+app.use(express.static('public/assets'));
+
+// parse application/x-www-form-urlencoded
+app.use(bodyParser.urlencoded({ extended: false }));
+app.engine('handlebars', exphbs({defaultLayout: 'main'}));
+app.set('view engine', 'handlebars');
+
+//Sets up calls for mongojs
 var databaseURL = "ScraperDB";
-var collections = [""];
+var collections = ["articles", "comments"];
 
 // use mongojs to hook the database to the db variable 
-var db = mongojs(databaseUrl, collections);
+var db = mongojs(databaseURL, collections);
 
-var app = express();
 
 app.get('/', function(req, res) {
 	//Loads the web page into the request package to grab information for the user to view
@@ -51,7 +62,13 @@ app.get('/', function(req, res) {
 		});
 
 		//Tests data capture
-		console.log(result);
-	});
+		//console.log(result);
+		//res.send(result);
 	res.render("index", result);
+	});
+});
+
+// listen on port 8080
+app.listen(8080, function() {
+  console.log('App running on port 8080!');
 });
