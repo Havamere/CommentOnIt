@@ -24,13 +24,16 @@ app.set('view engine', 'handlebars');
 
 //Sets up calls for mongojs
 var databaseURL = "ScraperDB";
-var collections = ["articles", "comments"];
+var collections = ["articles"];
 
 // use mongojs to hook the database to the db variable 
 var db = mongojs(databaseURL, collections);
 
 app.get('/', function(req, res) {
-	res.render("index", {});
+	db.articles.find({}, function(err, data) {
+		if (err) throw err;
+		res.render("index", {articles: data});
+	})
 })
 
 app.post('/submit', function(req, res) {
@@ -41,10 +44,11 @@ app.post('/submit', function(req, res) {
 		var $ = cheerio.load(html);
 
 		//Result will hold an array of data objects containing all the news articles information
-		var result = [];
+		//var result = [];
 
 		//Finds each called element within the document and saves the pertinent ones for our page
 		$("article").each(function(i, element) {
+			var article = {};
 			//Grabs the titles of each article
 			var title = $(this).find("h2").children().text().trim();
 
@@ -57,25 +61,41 @@ app.post('/submit', function(req, res) {
 			//Grabs the link to the article
 			var link = "http://www.theonion.com" + $(this).children().attr("href");
 
-			if (desc != '') {
+			//makes sure the article has a description
+			if (desc !== '') {
+				//Moves captured info to article object
+				article.title = title;
+				article.desc = desc;
+				article.image = image;
+				article.link = link;
+				article.comments = [];
 
-				//Moves captured info to result array as an object
-				result.push({
-					title: title,
-					desc: desc,
-					image: image,
-					link: link,
-				});
+				console.log(article);
+				//inserts articles into db.
+				db.articles.save(article, function(err, data) {
+					if (err) throw err;
+					console.log(data);
+				})
 			}
+
 		});
-
-
 		//Tests data capture
-		console.log(result);
-		//db.articles.insert(result)
+		//console.log(result);
 	});
+});
 
-	res.render("index", result);
+app.post('/addComment', function(req, res) {
+	//console.log(req.body);
+	var newComment = {
+			user: req.body.user,
+			comment: req.body.comment,
+			created: req.body.created,
+		};
+	db.articles.update({'_id': mongojs.ObjectId(req.body.id)}, {$push: {"comments": newComment}}, function(err, data) {
+		if (err) throw err;
+		console.log(data);
+	});
+	res.send(newComment);
 });
 
 // listen on port 8080

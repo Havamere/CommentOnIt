@@ -9,3 +9,12 @@ body {
 .imageHeader {
 	margin: 0 37%;
 }
+
+.comments {
+	background-color: e1e1ff !important;
+}
+
+#bubbles {
+	background-color: transparent;
+	width: 25%;
+}
