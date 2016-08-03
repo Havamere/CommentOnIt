@@ -36,7 +36,7 @@ app.get('/', function(req, res) {
 	})
 })
 
-app.post('/submit', function(req, res) {
+app.get('/submit', function(req, res) {
 	//Loads the web page into the request package to grab information for the user to view
 	request("http://www.theonion.com", function(err, response, html) {
 
@@ -44,7 +44,7 @@ app.post('/submit', function(req, res) {
 		var $ = cheerio.load(html);
 
 		//Result will hold an array of data objects containing all the news articles information
-		//var result = [];
+		var result = [];
 
 		//Finds each called element within the document and saves the pertinent ones for our page
 		$("article").each(function(i, element) {
@@ -71,17 +71,25 @@ app.post('/submit', function(req, res) {
 				article.comments = [];
 
 				console.log(article);
-				//inserts articles into db.
-				db.articles.save(article, function(err, data) {
-					if (err) throw err;
-					console.log(data);
-				})
-			}
+				result.push(article);
 
+				db.articles.find({'title': article.title}, function(err, articleData) {
+					if (articleData == true) {
+						console.log("Article already present.")
+					} else {
+						//inserts articles into db.
+						db.articles.save(article, function(err, data) {
+							if (err) throw err;
+							//console.log(data);
+						});
+					};
+				});
+			};
 		});
 		//Tests data capture
 		//console.log(result);
 	});
+	res.send(result);
 });
 
 app.post('/addComment', function(req, res) {
@@ -97,6 +105,20 @@ app.post('/addComment', function(req, res) {
 	});
 	res.send(newComment);
 });
+
+app.post('/delete', function(req, res) {
+	var toBeDeleted = {
+			id: req.body.id,
+			user: req.body.user,
+			comment: req.body.comment,
+			created: req.body.created,
+		};
+		console.log(toBeDeleted);
+	db.articles.update({'_id': mongojs.ObjectId(toBeDeleted.id)}, {$pop: {'comments': 1}}, function(err, data) {
+		if (err) throw err;
+		res.send(data);
+	});
+})
 
 // listen on port 8080
 app.listen(8080, function() {
