@@ -1,5 +1,5 @@
 $(document).ready(function(){
-	$("#submit").on('click', function(){
+	$("button").on('click', "#submit", function(){
 		//console.log($(this).val());
 		$.ajax({
 		    type: "GET",
@@ -13,8 +13,9 @@ $(document).ready(function(){
 		return false;
 	});
 
-	$("#addComment").on('click', function(){
+	$("button").on('click', "#addComment", function(event){
 		//console.log($(this).val());
+		event.preventDefault();
 		$.ajax({
 		    type: "POST",
 		    url: '/addComment',
@@ -35,7 +36,7 @@ $(document).ready(function(){
 		return false;
 	});
 
-	$("#delete").on('click', function(){
+	$("button").on('click', "#delete", function(){
 		$.ajax({
 		    type: "POST",
 		    url: '/delete',

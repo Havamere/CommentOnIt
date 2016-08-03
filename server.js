@@ -22,12 +22,14 @@ app.use(bodyParser.urlencoded({ extended: false }));
 app.engine('handlebars', exphbs({defaultLayout: 'main'}));
 app.set('view engine', 'handlebars');
 
-//Sets up calls for mongojs
-var databaseURL = "ScraperDB";
-var collections = ["articles"];
+//Sets up calls for mongojs for local use
+//var databaseURL = "ScraperDB";
+//var collections = ["articles"];
 
 // use mongojs to hook the database to the db variable 
-var db = mongojs(databaseURL, collections);
+//var db = mongojs(databaseURL, collections);
+var config = require('./config.js');
+var db = mongojs(config.dbURI, [config.collections])
 
 app.get('/', function(req, res) {
 	db.articles.find({}, function(err, data) {
@@ -120,7 +122,8 @@ app.post('/delete', function(req, res) {
 	});
 })
 
+var port = process.env.PORT || 8080;
 // listen on port 8080
-app.listen(8080, function() {
+app.listen(port, function() {
   console.log('App running on port 8080!');
 });
